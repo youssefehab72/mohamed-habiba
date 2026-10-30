@@ -5,6 +5,12 @@
   const TOTAL = Math.max(1, parseInt(CFG.TOTAL_PIECES, 10) || 60);
   const FRAME = Math.max(0, parseInt(CFG.FRAME_SIZE, 10) || 0);
   const frameOf = (n) => (FRAME && TOTAL > FRAME ? Math.ceil(n / FRAME) : 0);
+  const FRAME_NAMES = Array.isArray(CFG.FRAME_NAMES) ? CFG.FRAME_NAMES : [];
+  const frameName = (f, short) => {
+    const fn = FRAME_NAMES[f - 1];
+    if (!fn) return (I18N.lang === "ar" ? "البازل " : "Puzzle ") + I18N.num(f);
+    return short ? (I18N.lang === "ar" ? fn.short_ar : fn.short_en) : (I18N.lang === "ar" ? fn.ar : fn.en);
+  };
   const MAX_SEC = Math.max(10, parseInt(CFG.MAX_VOICE_SECONDS, 10) || 90);
   const $ = (id) => document.getElementById(id);
 
@@ -65,23 +71,31 @@
     $("progressFill").style.width = Math.min(100, (filled / TOTAL) * 100) + "%";
   }
 
-  // ---------- suggestion: "try to find piece N" ----------
-  let suggested = null;
+  // ---------- suggestion: "look for piece N" (one per puzzle) ----------
+  let suggested = []; // [{ f, n }]
   async function loadSuggestion() {
-    try { suggested = await API.suggestPiece(TOTAL); } catch (e) { suggested = null; }
+    const ranges = [];
+    if (FRAME && TOTAL > FRAME) for (let a = 1, f = 1; a <= TOTAL; a += FRAME, f++) ranges.push({ f, a, b: Math.min(TOTAL, a + FRAME - 1) });
+    else ranges.push({ f: 0, a: 1, b: TOTAL });
+    try {
+      const res = await Promise.all(ranges.map((r) => API.suggestRange(r.a, r.b)));
+      suggested = ranges.map((r, i) => ({ f: r.f, n: res[i] })).filter((x) => Number.isInteger(x.n) && x.n >= 1);
+    } catch (e) { suggested = []; }
     renderSuggest();
   }
   function renderSuggest() {
-    const ok = Number.isInteger(suggested) && suggested >= 1;
-    show($("suggest"), ok);
-    if (!ok) return;
-    $("suggestText").textContent = t("suggestText", { n: suggested });
-    $("suggestUse").textContent = t("suggestUse", { n: suggested });
+    show($("suggest"), suggested.length > 0);
+    const box = $("suggestRows"); box.innerHTML = "";
+    suggested.forEach(({ f, n }) => {
+      const row = document.createElement("div"); row.className = "sg-row";
+      const fn = FRAME_NAMES[f - 1];
+      const label = document.createElement("span");
+      label.textContent = (fn && fn.ico ? fn.ico + " " : "") + (f ? t("suggestRow", { p: frameName(f), n: I18N.num(n) }) : I18N.num(n));
+      const b = document.createElement("button"); b.className = "btn btn-soft btn-small"; b.textContent = t("suggestUse", { n: I18N.num(n) });
+      b.onclick = () => { const el = $("piece"); el.value = n; el.dispatchEvent(new Event("input", { bubbles: true })); el.scrollIntoView({ block: "center", behavior: "smooth" }); };
+      row.append(label, b); box.appendChild(row);
+    });
   }
-  $("suggestUse").onclick = () => {
-    if (!Number.isInteger(suggested)) return;
-    const el = $("piece"); el.value = suggested; el.dispatchEvent(new Event("input", { bubbles: true }));
-  };
 
   // ---------- how it works ----------
   const openHelp = () => { show($("help"), true); document.body.style.overflow = "hidden"; };
@@ -111,7 +125,7 @@
     el.className = "status";
     if (!s) { el.textContent = ""; return; }
     if (s === "checking") el.textContent = t("checking");
-    else if (s === "ok") { const f = frameOf(st.piece); el.textContent = f ? t("availableFrame", { n: st.piece, f }) : t("available", { n: st.piece }); el.classList.add("ok"); }
+    else if (s === "ok") { const f = frameOf(st.piece); el.textContent = f ? t("availableFrame", { n: st.piece, f, fname: frameName(f) }) : t("available", { n: st.piece }); el.classList.add("ok"); }
     else if (s === "taken") { el.textContent = t("taken", { n: st.piece }); el.classList.add("bad"); }
     else if (s === "range") { el.textContent = t("outOfRange", { total: TOTAL }); el.classList.add("bad"); }
     else if (s === "unknown") el.textContent = "";
@@ -167,12 +181,9 @@
   // ---------- step 2: question or note ----------
   function setKind(k) {
     st.kind = k;
-    $("modeQ").setAttribute("aria-pressed", k === "question");
-    $("modeN").setAttribute("aria-pressed", k === "note");
-    show($("qcard"), k === "question");
   }
-  $("modeQ").onclick = () => setKind("question");
-  $("modeN").onclick = () => setKind("note");
+  $("modeQ").onclick = () => { setKind("question"); go(3); };
+  $("modeN").onclick = () => { setKind("note"); go(3); };
 
   function questionText() { return I18N.qText(QUESTIONS[st.qIndex]); }
   function renderQuestion(animate) {
@@ -220,7 +231,6 @@
   $("sheet").addEventListener("click", (e) => { if (e.target === $("sheet")) closeSheet(); });
 
   $("s2back").onclick = () => go(1);
-  $("s2next").onclick = () => go(3);
   $("s3back").onclick = () => go(2);
 
   // ---------- voice note ----------
@@ -485,7 +495,7 @@
     $("doneNum").classList.toggle("long", String(s.piece).length >= 3);
     $("doneTitle").textContent = t("doneTitle", { name: I18N.lang === "ar" && s.partner ? `${s.name} و${s.partner}` : who });
     const f = frameOf(s.piece);
-    $("doneBody").textContent = f ? t("doneBodyFrame", { n: s.piece, f }) : t("doneBody", { n: s.piece });
+    $("doneBody").textContent = f ? t("doneBodyFrame", { n: s.piece, f, fname: frameName(f) }) : t("doneBody", { n: s.piece });
   }
   $("again").onclick = () => {
     st.lastSent = null; st.piece = null; st.pieceState = null; st.uploads = {}; current = null;

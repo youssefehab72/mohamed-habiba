@@ -282,3 +282,38 @@ ol.how.big .n { width: 32px; height: 32px; font-size: 16px; }
 .thanks .sign { margin-top: 8px; font-family: var(--font-display); font-size: 26px; color: var(--rose); line-height: 1.2; }
 .done .big-num span { }
 #helpBtn b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--rose-ink); font-size: 13px; vertical-align: middle; }
+
+/* ---------- v2: clearer steps for everyone (and bigger in Arabic) ---------- */
+.how-box { margin: 0 0 20px; padding: 14px 14px 10px; background: var(--gold-soft); border-radius: 16px; }
+.how-head { margin: 0 0 8px; font-weight: 700; color: var(--rose); font-size: 15px; letter-spacing: .04em; }
+.how-box ol.how { background: transparent; border: 0; padding: 0; margin: 0; gap: 12px; }
+ol.how li { align-items: center; }
+ol.how .hi { flex: none; font-size: 22px; line-height: 1; }
+ol.how small { display: block; color: var(--muted); font-size: 14px; }
+.fhint { margin: -2px 0 8px; font-size: 14px; color: var(--muted); line-height: 1.5; }
+.fhint.center { text-align: center; margin: 14px 0 0; }
+.suggest { display: block; }
+.sg-text { margin: 0 0 8px; font-weight: 500; }
+.sg-rows { display: grid; gap: 8px; }
+.sg-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border-radius: 12px; padding: 8px 10px; }
+.sg-row span { font-weight: 700; }
+.sg-note { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.pick { border: 2px solid var(--line); border-radius: 18px; padding: 14px; background: var(--surface); }
+.pick-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 18px; }
+.pick-head .ico { font-size: 26px; }
+.pick .qcard { margin: 0 0 12px; }
+.pick-sub { margin: 0 0 12px; color: var(--muted); }
+.btn-block { width: 100%; }
+.or-sep { display: flex; align-items: center; gap: 12px; margin: 14px 0; color: var(--rose); font-weight: 700; font-size: 18px; }
+.or-sep::before, .or-sep::after { content: ""; flex: 1; height: 2px; background: var(--line); border-radius: 2px; }
+.or-sep span { padding: 2px 14px; border: 2px solid var(--rose); border-radius: 999px; }
+/* Arabic: most guests choosing it are older, so everything is a little bigger */
+:root[lang="ar"] body { font-size: 19px; }
+:root[lang="ar"] .fhint { font-size: 16px; color: var(--ink); opacity: .8; }
+:root[lang="ar"] .btn { font-size: 19px; }
+:root[lang="ar"] ol.how li { font-size: 18px; }
+:root[lang="ar"] .pick-head { font-size: 20px; }
+:root[lang="ar"] label.field { font-size: 19px; font-weight: 700; }
+:root[lang="ar"] .side-opt { font-size: 17px; }
+.sg-row .btn { flex: none; white-space: nowrap; }
+.sg-row span { min-width: 0; }

@@ -108,6 +108,7 @@
     pieceTaken: (n) => rpc("piece_taken", { p_piece: n }),
     filledCount: () => rpc("filled_count"),
     suggestPiece: (total) => rpc("suggest_piece", { p_total: total }),
+    suggestRange: (from, to) => rpc("suggest_in_range", { p_from: from, p_to: to }),
     upload: (path, blob, type, onProgress) => uploadXHR(path, blob, type, onProgress),
     submit: (e) => rpc("submit_memory", {
       p_piece: e.piece, p_guest_name: e.guest_name, p_partner_name: e.partner_name || null, p_side: e.side || null,
@@ -127,6 +128,11 @@
     suggestPiece: async (total) => {
       const taken = new Set(demoAll().map((r) => r.piece)); const free = [];
       for (let i = 1; i <= total && free.length < 5; i++) if (!taken.has(i)) free.push(i);
+      return free.length ? free[Math.floor(Math.random() * free.length)] : null;
+    },
+    suggestRange: async (from, to) => {
+      const taken = new Set(demoAll().map((r) => r.piece)); const free = [];
+      for (let i = from; i <= to && free.length < 5; i++) if (!taken.has(i)) free.push(i);
       return free.length ? free[Math.floor(Math.random() * free.length)] : null;
     },
     upload: async (path, blob, type, onProgress) => {

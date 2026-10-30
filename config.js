@@ -10,8 +10,14 @@ window.PUZZLE_CONFIG = {
   // How many pieces the puzzle has (pieces are numbered 1 to this number).
   TOTAL_PIECES: 200,
 
-  // Pieces per frame: pieces 1-100 belong to Frame 1, 101-200 to Frame 2.
+  // Pieces per puzzle: pieces 1-100 belong to the first puzzle, 101-200 to the second.
   FRAME_SIZE: 100,
+
+  // The name of each puzzle, in order (first = pieces 1-100, second = 101-200).
+  FRAME_NAMES: [
+    { en: "Family puzzle", ar: "بازل العيلة", short_en: "Family", short_ar: "العيلة", ico: "👨‍👩‍👧‍👦" },
+    { en: "Friends puzzle", ar: "بازل الأصحاب", short_en: "Friends", short_ar: "الأصحاب", ico: "🥳" },
+  ],
 
   // The couple's names, shown at the top of both pages.
   COUPLE: { en: "Mohamed & Habiba", ar: "محمد وحبيبة" },
