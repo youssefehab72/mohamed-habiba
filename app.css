@@ -317,3 +317,5 @@ ol.how small { display: block; color: var(--muted); font-size: 14px; }
 :root[lang="ar"] .side-opt { font-size: 17px; }
 .sg-row .btn { flex: none; white-space: nowrap; }
 .sg-row span { min-width: 0; }
+.sg-note { font-size: 16px; font-weight: 700; color: var(--rose); background: var(--surface); border-radius: 12px; padding: 8px 12px; margin-top: 10px; }
+:root[lang="ar"] .sg-note { font-size: 18px; color: var(--rose); opacity: 1; }

@@ -83,6 +83,8 @@
     } catch (e) { suggested = []; }
     renderSuggest();
   }
+  setInterval(() => { if (st.step === 1 && !document.hidden) loadSuggestion(); }, 20000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && st.step === 1) loadSuggestion(); });
   function renderSuggest() {
     show($("suggest"), suggested.length > 0);
     const box = $("suggestRows"); box.innerHTML = "";
@@ -126,7 +128,7 @@
     if (!s) { el.textContent = ""; return; }
     if (s === "checking") el.textContent = t("checking");
     else if (s === "ok") { const f = frameOf(st.piece); el.textContent = f ? t("availableFrame", { n: st.piece, f, fname: frameName(f) }) : t("available", { n: st.piece }); el.classList.add("ok"); }
-    else if (s === "taken") { el.textContent = t("taken", { n: st.piece }); el.classList.add("bad"); }
+    else if (s === "taken") { el.textContent = t("taken", { n: st.piece }); el.classList.add("bad"); loadSuggestion(); }
     else if (s === "range") { el.textContent = t("outOfRange", { total: TOTAL }); el.classList.add("bad"); }
     else if (s === "unknown") el.textContent = "";
   }

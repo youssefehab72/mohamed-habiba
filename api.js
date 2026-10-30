@@ -131,9 +131,9 @@
       return free.length ? free[Math.floor(Math.random() * free.length)] : null;
     },
     suggestRange: async (from, to) => {
-      const taken = new Set(demoAll().map((r) => r.piece)); const free = [];
-      for (let i = from; i <= to && free.length < 5; i++) if (!taken.has(i)) free.push(i);
-      return free.length ? free[Math.floor(Math.random() * free.length)] : null;
+      const taken = new Set(demoAll().map((r) => r.piece));
+      for (let i = from; i <= to; i++) if (!taken.has(i)) return i;
+      return null;
     },
     upload: async (path, blob, type, onProgress) => {
       for (let i = 1; i <= 5; i++) { await wait(120); onProgress && onProgress(i / 5); }
