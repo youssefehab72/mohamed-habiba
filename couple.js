@@ -259,7 +259,7 @@
       const JSZip = await loadJSZip();
       const zip = new JSZip();
       const media = zip.folder("media");
-      const out = [];
+      const out = [], missing = [];
       const jobs = rows.filter((r) => r.audio_path || r.photo_path).length;
       let i = 0;
       for (const r of rows) {
@@ -267,13 +267,19 @@
         if (r.audio_path || r.photo_path) status.textContent = t("cPreparing", { i: ++i, n: jobs });
         for (const kind of ["audio", "photo"]) {
           const p = r[kind + "_path"]; if (!p) continue;
-          try {
-            const u = await API.mediaUrl(p);
-            const b = await (await fetch(u)).blob();
+          let b = null;
+          for (let attempt = 1; attempt <= 4 && !b; attempt++) {
+            try {
+              const res = await fetch(await API.mediaUrl(p), { cache: "no-store" });
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              b = await res.blob();
+            } catch (e) { console.warn("could not fetch", p, e); await new Promise((ok) => setTimeout(ok, 1500 * attempt)); }
+          }
+          if (b) {
             const name = `piece-${pad(r.piece)}-${kind === "audio" ? "voice" : "photo"}.${extOf(p)}`;
             media.file(name, b);
             item[kind + "_file"] = "media/" + name;
-          } catch (e) { console.warn("could not fetch", p, e); }
+          } else { missing.push(r.piece); item[kind + "_missing"] = true; }
         }
         out.push(item);
       }
@@ -289,7 +295,7 @@
       a.download = "puzzle-memories.zip";
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-      status.textContent = "✓";
+      status.textContent = missing.length ? t("cMissing", { list: [...new Set(missing)].join(", ") }) : "✓";
     } catch (e) {
       console.error(e); status.textContent = t("cOffline");
     } finally { btn.disabled = false; }
