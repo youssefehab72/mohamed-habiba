@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f8f2ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1416" media="(prefers-color-scheme: dark)">
+  <title>Puzzle of Memories</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%239b3a4d' d='M20 30H40C40 16 60 16 60 30H80V50C94 50 94 70 80 70V90H60C60 78 40 78 40 90H20V70C32 70 32 50 20 50Z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=El+Messiri:wght@600&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <button class="chip-btn" id="helpBtn"><b aria-hidden="true">?</b> <span data-t="helpBtn"></span></button>
+    <button class="chip-btn" id="langBtn" data-t="langSwitch">English</button>
+  </div>
+
+  <header class="hero">
+    <svg class="emblem" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M20 30H40C40 16 60 16 60 30H80V50C94 50 94 70 80 70V90H60C60 78 40 78 40 90H20V70C32 70 32 50 20 50Z"/></svg>
+    <h1 class="couple-names" data-couple></h1>
+    <p class="app-title" data-t="appTitle"></p>
+    <p class="tagline" data-t="tagline"></p>
+    <div class="progress-pill" id="progress" hidden>
+      <span class="progress-bar"><i id="progressFill"></i></span>
+      <span id="progressText"></span>
+    </div>
+  </header>
+
+  <p class="notice" id="demoNote" data-t="demo" hidden></p>
+  <p class="notice" id="inAppNote" data-t="inApp" hidden></p>
+
+  <!-- unsent message from earlier -->
+  <section class="card" id="pendingCard" hidden>
+    <p id="pendingText" style="margin-top:0"></p>
+    <div class="actions">
+      <button class="btn btn-primary" id="pendingSend" data-t="sendNow"></button>
+      <button class="btn btn-ghost" id="pendingDiscard" data-t="discard"></button>
+    </div>
+  </section>
+
+  <div class="dots" id="dots"><i></i><i></i><i></i></div>
+
+  <!-- STEP 1: piece + names -->
+  <section class="card" id="step1">
+    <p class="step-label" id="s1label"></p>
+    <h2 data-t="step1Title"></h2>
+    <ol class="how" id="howList">
+      <li><span class="n">1</span><span data-t="how1"></span></li>
+      <li><span class="n">2</span><span data-t="how2"></span></li>
+      <li><span class="n">3</span><span data-t="how3"></span></li>
+    </ol>
+    <label class="field" for="piece" data-t="pieceLabel"></label>
+    <input class="input piece-input" id="piece" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="4" placeholder="#">
+    <div class="status" id="pieceStatus" aria-live="polite"></div>
+    <div class="suggest" id="suggest" hidden>
+      <span class="bulb" aria-hidden="true">💡</span>
+      <div><p id="suggestText"></p><button class="btn btn-soft btn-small" id="suggestUse"></button></div>
+    </div>
+
+    <label class="field" for="name" data-t="nameLabel"></label>
+    <input class="input" id="name" autocomplete="name" maxlength="80" data-tph="namePh">
+
+    <div id="partnerWrap" hidden>
+      <label class="field" for="partner" data-t="partnerLabel"></label>
+      <div class="row">
+        <input class="input" id="partner" maxlength="80" data-tph="partnerPh">
+        <button class="btn btn-ghost btn-small" id="partnerRemove" data-t="remove"></button>
+      </div>
+    </div>
+    <button class="link-btn" id="partnerAdd" data-t="addPartner"></button>
+
+    <label class="field" data-t="sideLabel"></label>
+    <div class="sides" id="sides">
+      <button class="side-opt" data-side="bride" aria-pressed="false"><span class="ico">👰</span><span data-t="side_bride"></span></button>
+      <button class="side-opt" data-side="groom" aria-pressed="false"><span class="ico">🤵</span><span data-t="side_groom"></span></button>
+      <button class="side-opt" data-side="both" aria-pressed="false"><span class="ico">💞</span><span data-t="side_both"></span></button>
+    </div>
+
+    <div class="status bad" id="s1err"></div>
+    <div class="actions"><button class="btn btn-primary" id="s1next" data-t="next"></button></div>
+  </section>
+
+  <!-- STEP 2: question or note -->
+  <section class="card" id="step2" hidden>
+    <p class="step-label" id="s2label"></p>
+    <h2 data-t="step2Title"></h2>
+
+    <button class="choice" id="modeQ" aria-pressed="true">
+      <span class="ico">💬</span>
+      <span><b data-t="modeQuestion"></b><span data-t="modeQuestionSub"></span></span>
+    </button>
+
+    <div class="qcard" id="qcard">
+      <span class="cat" id="qcat"></span>
+      <p class="qtext" id="qtext"></p>
+      <div class="qbtns">
+        <button class="btn btn-soft btn-small" id="shuffle">🔀 <span data-t="anotherQ"></span></button>
+        <button class="btn btn-ghost btn-small" id="seeAll" data-t="seeAll"></button>
+      </div>
+    </div>
+
+    <button class="choice" id="modeN" aria-pressed="false" style="margin-top:12px">
+      <span class="ico">💌</span>
+      <span><b data-t="modeNote"></b><span data-t="modeNoteSub"></span></span>
+    </button>
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="s2back" data-t="back"></button>
+      <button class="btn btn-primary" id="s2next" data-t="next"></button>
+    </div>
+  </section>
+
+  <!-- STEP 3: write / voice / photo -->
+  <section class="card" id="step3" hidden>
+    <p class="step-label" id="s3label"></p>
+    <h2 id="s3title"></h2>
+
+    <div class="mini-q" id="miniQ">
+      <div class="mini-q-head">
+        <span class="cat" data-t="yourQuestion"></span>
+        <button class="link-btn" style="padding:0" id="changeQ" data-t="change"></button>
+      </div>
+      <p class="qtext" id="miniQtext"></p>
+    </div>
+    <p class="relax" data-t="relax"></p>
+
+    <div class="block">
+      <div class="block-head"><b>✍️ <span data-t="writeLabel"></span></b><span class="opt" data-t="optional"></span></div>
+      <textarea class="input" id="message" maxlength="5000" data-tph="writePh"></textarea>
+    </div>
+
+    <div class="block">
+      <div class="block-head"><b>🎙️ <span data-t="voiceLabel"></span></b><span class="opt" id="maxVoice"></span></div>
+      <div class="rec" id="recIdle">
+        <button class="rec-btn" id="recStart" aria-label="record">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+        </button>
+        <div class="rec-info"><span data-t="record"></span></div>
+      </div>
+      <div class="rec" id="recLive" hidden>
+        <button class="rec-btn live" id="recStop" aria-label="stop">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        </button>
+        <div class="rec-info">
+          <div class="rec-time" id="recTime">0:00</div>
+          <div class="meter" id="meter"></div>
+          <small class="opt" data-t="recording"></small>
+        </div>
+      </div>
+      <div class="rec-done" id="recDone" hidden>
+        <audio id="recAudio" controls preload="metadata"></audio>
+        <div class="row">
+          <button class="btn btn-soft btn-small" id="recAgain" data-t="reRecord"></button>
+          <button class="btn btn-ghost btn-small" id="recDel" data-t="del"></button>
+        </div>
+      </div>
+      <div class="status bad" id="recErr"></div>
+    </div>
+
+    <div class="block">
+      <div class="block-head"><b>📸 <span data-t="photoLabel"></span></b><span class="opt" data-t="optional"></span></div>
+      <p class="hint" data-t="photoSub"></p>
+      <div id="photoIdle"><button class="btn btn-soft" id="photoStart">📷 <span data-t="takePhoto"></span></button></div>
+      <div id="photoDone" hidden>
+        <img class="photo-preview" id="photoImg" alt="">
+        <div class="row">
+          <button class="btn btn-soft btn-small" id="photoAgain" data-t="retake"></button>
+          <button class="btn btn-ghost btn-small" id="photoDel" data-t="remove"></button>
+        </div>
+      </div>
+      <input type="file" id="photoFallback" accept="image/*" capture="user" hidden>
+      <div class="status bad" id="photoErr"></div>
+    </div>
+
+    <div class="status bad" id="s3err"></div>
+    <div id="sendState" class="sending" hidden>
+      <div id="sendText"></div>
+      <div class="upbar"><i id="sendBar"></i></div>
+      <button class="btn btn-soft btn-small" id="retryBtn" style="margin-top:12px" data-t="retry" hidden></button>
+    </div>
+    <div class="actions" id="s3actions">
+      <button class="btn btn-ghost" id="s3back" data-t="back"></button>
+      <button class="btn btn-primary" id="send" data-t="send"></button>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section class="card done" id="doneCard" hidden>
+    <div class="big-num">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M20 30H40C40 16 60 16 60 30H80V50C94 50 94 70 80 70V90H60C60 78 40 78 40 90H20V70C32 70 32 50 20 50Z"/></svg>
+      <span id="doneNum"></span>
+    </div>
+    <h2 id="doneTitle"></h2>
+    <p id="doneBody"></p>
+    <div class="thanks">
+      <p data-t="coupleThanks"></p>
+      <p class="sign" data-couple></p>
+    </div>
+    <div class="actions"><button class="btn btn-ghost" style="width:100%" id="again" data-t="nextGuest"></button></div>
+  </section>
+
+  <p class="foot"><a href="couple.html">🔒 <span data-t="forCouple"></span></a></p>
+</div>
+
+<!-- all-questions sheet -->
+<div class="sheet-back" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><h3 data-t="chooseOne"></h3><button class="chip-btn" id="sheetClose" data-t="close"></button></div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<!-- how it works -->
+<div class="sheet-back" id="help" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="sheet-head"><h3 id="helpTitle" data-t="howTitle"></h3><button class="chip-btn" id="helpClose" data-t="close"></button></div>
+    <div class="sheet-body">
+      <ol class="how big">
+        <li><span class="n">1</span><span data-t="how1"></span></li>
+        <li><span class="n">2</span><span data-t="how2"></span></li>
+        <li><span class="n">3</span><span data-t="how3"></span></li>
+      </ol>
+      <p class="relax" data-t="relax"></p>
+      <div class="actions"><button class="btn btn-primary" id="helpOk" data-t="howClose"></button></div>
+    </div>
+  </div>
+</div>
+
+<!-- camera -->
+<div class="cam" id="cam" hidden>
+  <video id="camVideo" playsinline muted autoplay></video>
+  <div class="cam-bar">
+    <button class="chip-btn" id="camCancel" data-t="cancel"></button>
+    <button class="shutter" id="camShoot" aria-label="take photo"></button>
+    <button class="chip-btn" id="camFlip">🔄 <span data-t="flip"></span></button>
+  </div>
+</div>
+
+<script>
+  // If the couple has signed in on this phone, scanning the QR opens their memories directly.
+  try {
+    if (localStorage.getItem("puzzle-couple-pass") && !/[?&]guest\b/.test(location.search)) location.replace("couple.html");
+  } catch (e) {}
+</script>
+<script src="config.js?v=1"></script>
+<script src="i18n.js?v=1"></script>
+<script src="api.js?v=1"></script>
+<script src="guest.js?v=1"></script>
+</body>
+</html>
